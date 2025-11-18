@@ -25,7 +25,7 @@ const LevelSelectScreen: React.FC<LevelSelectScreenProps> = ({ theme, levels, un
   return (
     <div className={`w-full h-full flex flex-col items-center p-4 pt-20 ${theme.color} overflow-y-auto`}>
       <h1 className="text-5xl md:text-7xl font-display text-white mb-8 drop-shadow-lg">{theme.name} Puzzles</h1>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6 pb-20">
         {levels.map((level, index) => {
           const isUnlocked = unlockedLevels.includes(level.id);
           const isCompleted = unlockedLevels.includes(levels[index+1]?.id) || (index === levels.length -1 && unlockedLevels.includes(level.id))
@@ -38,16 +38,31 @@ const LevelSelectScreen: React.FC<LevelSelectScreenProps> = ({ theme, levels, un
               className={`relative w-36 h-36 md:w-48 md:h-48 rounded-2xl shadow-lg flex flex-col justify-center items-center p-4 transform transition-transform 
               ${isUnlocked ? 'bg-white/80 backdrop-blur-sm hover:scale-105 active:scale-95 cursor-pointer' : 'bg-gray-400/50 cursor-not-allowed'}`}
             >
-              {!isUnlocked && <Lock className="absolute top-2 right-2 text-white" />}
-              {isCompleted && <CheckCircle className="absolute top-2 right-2 text-green-500" />}
+              {!isUnlocked && <Lock className="absolute top-2 right-2 text-white z-10" />}
+              {isCompleted && <CheckCircle className="absolute top-2 right-2 text-green-500 z-10" />}
 
-              <img src={`https://picsum.photos/seed/${level.animalName}/100/100`} alt={level.animalName} className="w-20 h-20 md:w-24 md:h-24 rounded-full object-cover mb-2" style={{ filter: isUnlocked ? 'none' : 'grayscale(100%)' }} />
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden mb-2 shadow-inner bg-gray-200">
+                <img 
+                  src={`https://loremflickr.com/200/200/${level.animalName.toLowerCase()},animal?lock=${index}`} 
+                  alt={level.animalName} 
+                  className="w-full h-full object-cover" 
+                  style={{ filter: isUnlocked ? 'none' : 'grayscale(100%) contrast(120%) brightness(80%)' }}
+                  onError={(e) => {
+                    // Fallback if image fails to load
+                    (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${level.animalName}&background=random&size=128`;
+                  }}
+                />
+              </div>
 
               <div className="flex items-center">
                 {Array.from({ length: 5 }).map((_, i) => (
                     <PawPrint key={i} size={16} className={i < level.pieces-2 ? 'text-yellow-500' : 'text-gray-300'} />
                 ))}
               </div>
+              
+              {isUnlocked && (
+                <span className="mt-1 text-sm font-bold text-gray-600">{level.animalName}</span>
+              )}
             </button>
           );
         })}
